@@ -54,16 +54,16 @@ Use this list in order; check off items as you complete them. Each section maps 
 
 ## Phase 3: AI document extraction & eligibility scoring
 
-- [ ] **3.1** Document processing service: interface that accepts document ID/path and returns structured financials (PRD §5.4)
-- [ ] **3.2** Implement extraction logic: mock AI that returns JSON with avg_monthly_revenue, highest_revenue, lowest_revenue, avg_balance, revenue_consistency, cash_flow_volatility, transaction_count, negative_balance_days?, risk_summary – PRD §5.4, §7.4
+- [x] **3.1** Document processing service: interface that accepts document ID/path and returns structured financials (PRD §5.4)
+- [x] **3.2** Implement extraction logic: mock AI that returns JSON with avg_monthly_revenue, highest_revenue, lowest_revenue, avg_balance, revenue_consistency, cash_flow_volatility, transaction_count, negative_balance_days?, risk_summary – PRD §5.4, §7.4
 - [ ] **3.3** (Optional) Integrate real OCR (e.g. Tesseract or cloud) and parse into same structure; store in **ExtractedFinancials**
-- [ ] **3.4** Implement `POST /extract-financials` (input: application_id or document_ids); run extraction; persist ExtractedFinancials; return structured result – PRD §6
+- [x] **3.4** Implement `POST /extract-financials` (input: application_id or document_ids); run extraction; persist ExtractedFinancials; return structured result – PRD §6
 - [ ] **3.5** (Optional) Use BullMQ job for async extraction; frontend polls or uses webhook/SSE for “Analyzing…” – techstack §8
-- [ ] **3.6** Eligibility scoring module: input = merchant + application + ExtractedFinancials; weighted model – PRD §5.5
+- [x] **3.6** Eligibility scoring module: input = merchant + application + ExtractedFinancials; weighted model – PRD §5.5
   - Revenue strength 30%, Revenue consistency 20%, Business vintage 15%, Cash flow health 20%, Loan vs revenue 10%, Risk flags 5%
-- [ ] **3.7** Output: score (0–100), band (pre_approved | conditional | rejected): ≥75 pre_approved, 55–74 conditional, <55 rejected
-- [ ] **3.8** Store result in **EligibilityScores** (score, band, reasoning, factor_breakdown?)
-- [ ] **3.9** Implement `POST /calculate-score` (input: application_id); return score, band, reasoning – PRD §6
+- [x] **3.7** Output: score (0–100), band (pre_approved | conditional | rejected): ≥75 pre_approved, 55–74 conditional, <55 rejected
+- [x] **3.8** Store result in **EligibilityScores** (score, band, reasoning, factor_breakdown?)
+- [x] **3.9** Implement `POST /calculate-score` (input: application_id); return score, band, reasoning – PRD §6
 
 ---
 

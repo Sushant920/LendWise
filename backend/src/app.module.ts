@@ -6,6 +6,8 @@ import { AuthModule } from './auth/auth.module';
 import { MerchantsModule } from './merchants/merchants.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { DocumentsModule } from './documents/documents.module';
+import { ExtractionModule } from './extraction/extraction.module';
+import { ScoringModule } from './scoring/scoring.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { DocumentsModule } from './documents/documents.module';
     MerchantsModule,
     ApplicationsModule,
     DocumentsModule,
+    ExtractionModule,
+    ScoringModule,
   ],
   controllers: [AppController],
   providers: [AppService],
