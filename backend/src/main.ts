@@ -8,8 +8,9 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
+  const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: [frontendUrl, `${frontendUrl}/`],
     credentials: true,
   });
   await app.listen(process.env.PORT ?? 3001);

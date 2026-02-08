@@ -70,10 +70,16 @@ Use this section if you are deploying **backend on Render** and **frontend on Ve
 6. Wait until the deploy shows **Live** (green). If it fails, check **Logs** (often missing `DATABASE_URL` or Prisma errors).
 7. Copy your backend URL from the top of the page, e.g. `https://lendwise-api.onrender.com`.  
    - **API base URL for the frontend:** `https://lendwise-api.onrender.com/api` (must include `/api`).
-8. **Run database seed once (admin user + lenders):**
-   - Open your Web Service → **Shell** tab.
-   - Run: `npm run prisma:seed`
-   - Exit the shell when it finishes.
+8. **Run database seed once (admin user + lenders):**  
+   On the **free plan**, the **Shell** tab is not available. Run the seed from your **computer** instead:
+   - In Render, open your **PostgreSQL** database (not the Web Service) → **Info** / **Connection**.
+   - Copy the **External Database URL** (add `?sslmode=require` at the end if it’s not there).
+   - On your machine, in the repo:  
+     `cd backend`  
+     then run:  
+     `DATABASE_URL="<paste External URL here>" npm run prisma:seed`  
+   - You should see “Seeded admin user” and lenders in the output.  
+   **If you’re on a paid plan**, you can use the Web Service **Shell** and run `npm run prisma:seed` there (no need to set `DATABASE_URL`; it uses the service env).
 
 ---
 
@@ -96,6 +102,8 @@ Use this section if you are deploying **backend on Render** and **frontend on Ve
 6. Click **Deploy**. Wait until the build finishes.
 7. When done, Vercel shows the live URL, e.g. `https://lendwise-xxx.vercel.app`. Copy this **exact** URL (no trailing slash).
 
+**If you add or change `NEXT_PUBLIC_API_URL` after the first deploy:** trigger a **new deploy** on Vercel (Deployments → … → Redeploy). Next.js bakes this variable into the build, so the app must be rebuilt to use the new value.
+
 ---
 
 ## Part 4: Fix CORS (backend must allow frontend)
@@ -106,7 +114,9 @@ Use this section if you are deploying **backend on Render** and **frontend on Ve
    - **Value:** the Vercel URL from Part 3, e.g. `https://lendwise-xxx.vercel.app` (no trailing slash).
 3. Save. Render will **redeploy** automatically. Wait until it’s **Live** again.
 
-After this, the browser will be allowed to call your backend from the Vercel site.
+After this, the browser will be allowed to call your backend from the Vercel site. **Tip:** `FRONTEND_URL` can have or omit a trailing slash; the backend normalizes it for CORS.
+
+**“Could not reach the server”:** (1) Redeploy Vercel after setting `NEXT_PUBLIC_API_URL`. (2) On Render **free** tier, the backend spins down when idle; the first request after a few minutes can take 30–60 seconds—wait or retry once.
 
 ---
 
