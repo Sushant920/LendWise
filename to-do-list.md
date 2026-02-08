@@ -42,13 +42,13 @@ Use this list in order; check off items as you complete them. Each section maps 
 
 ## Phase 2: Core backend – merchants, applications, documents
 
-- [ ] **2.1** Merchant service: get profile, update profile (business details); ensure merchant can only access own data
-- [ ] **2.2** Application service: create application (draft), get application by ID, list applications by merchant_id, update application (step 1–2 data)
-- [ ] **2.3** Implement `POST /applications` (create draft), `GET /applications`, `GET /applications/:id`, `PATCH /applications/:id` with status transitions – PRD §4.2
-- [ ] **2.4** Document service: upload file to S3, save **Documents** row (application_id, type, storage_path, file_name, mime_type)
-- [ ] **2.5** Implement `POST /upload-documents` (multipart); associate to application; return document IDs – PRD §6
-- [ ] **2.6** Add file type validation (PDF, image) and size limits; return clear error on failure – PRD §10
-- [ ] **2.7** On application submit: set status to `submitted` then `processing`; trigger extraction job (or sync extraction in MVP)
+- [x] **2.1** Merchant service: get profile, update profile (business details); ensure merchant can only access own data
+- [x] **2.2** Application service: create application (draft), get application by ID, list applications by merchant_id, update application (step 1–2 data)
+- [x] **2.3** Implement `POST /applications` (create draft), `GET /applications`, `GET /applications/:id`, `PATCH /applications/:id` with status transitions – PRD §4.2
+- [x] **2.4** Document service: upload file to S3, save **Documents** row (application_id, type, storage_path, file_name, mime_type)
+- [x] **2.5** Implement `POST /upload-documents` (multipart); associate to application; return document IDs – PRD §6
+- [x] **2.6** Add file type validation (PDF, image) and size limits; return clear error on failure – PRD §10
+- [x] **2.7** On application submit: set status to `submitted` then `processing`; trigger extraction job (or sync extraction in MVP)
 
 ---
 
