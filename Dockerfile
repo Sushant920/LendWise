@@ -8,6 +8,9 @@ WORKDIR /app
 # Copy entire backend (root .dockerignore excludes frontend, etc.; backend/.dockerignore is not used for context)
 COPY backend/ .
 
+# prisma.config.ts requires DATABASE_URL at load time; use a dummy for build (Render sets the real one at runtime)
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
+
 # Install deps, generate Prisma client, build (dist must exist after this)
 RUN npm ci && npx prisma generate && npm run build && test -f dist/main.js || (echo "Build did not produce dist/main.js" && ls -la dist/ 2>/dev/null || true && exit 1)
 

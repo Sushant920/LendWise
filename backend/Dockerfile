@@ -7,6 +7,9 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
+# prisma.config.ts requires DATABASE_URL at load time; dummy for build (real one at runtime)
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
+
 # Install dependencies
 RUN npm ci
 
