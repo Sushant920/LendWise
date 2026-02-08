@@ -9,6 +9,7 @@ import { DocumentsModule } from './documents/documents.module';
 import { ExtractionModule } from './extraction/extraction.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { LendersModule } from './lenders/lenders.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { LendersModule } from './lenders/lenders.module';
     ExtractionModule,
     ScoringModule,
     LendersModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -84,58 +84,58 @@ Use this list in order; check off items as you complete them. Each section maps 
 
 ## Phase 5: Merchant frontend (Next.js + Tailwind)
 
-- [ ] **5.1** Apply design system: colors (neutral + primary accent, status green/amber/red), typography, cards, buttons – Design §2, §3
-- [ ] **5.2** Set up routing: `/login`, `/signup`, `/dashboard`, `/applications`, `/applications/new`, `/applications/:id`, `/applications/:id/result`
-- [ ] **5.3** Login & signup pages: centered card, email + password, primary CTA, minimal layout – Design §4.1
-- [ ] **5.4** Wire auth: call signup/login APIs; store JWT (httpOnly cookie or secure storage); redirect by role (merchant → dashboard, admin → admin dashboard)
-- [ ] **5.5** Merchant dashboard: top bar (logo, profile, logout); summary cards (Active Applications, Last Decision, Avg Risk Score if available); applications table (ID, Loan Type, Status, Date, Action); primary CTA “Start New Application” – Design §4.2, PRD §5.2
-- [ ] **5.6** Ensure dashboard loads in < 3s; list shows status and link to detail/result – PRD §5.2
-- [ ] **5.7** New application wizard – progress bar “Step X of 5” – Design §4.3, PRD §5.3
+- [x] **5.1** Apply design system: colors (neutral + primary accent, status green/amber/red), typography, cards, buttons – Design §2, §3
+- [x] **5.2** Set up routing: `/login`, `/signup`, `/dashboard`, `/applications`, `/applications/new`, `/applications/:id`, `/applications/:id/result`
+- [x] **5.3** Login & signup pages: centered card, email + password, primary CTA, minimal layout – Design §4.1
+- [x] **5.4** Wire auth: call signup/login APIs; store JWT (httpOnly cookie or secure storage); redirect by role (merchant → dashboard, admin → admin dashboard)
+- [x] **5.5** Merchant dashboard: top bar (logo, profile, logout); summary cards (Active Applications, Last Decision, Avg Risk Score if available); applications table (ID, Loan Type, Status, Date, Action); primary CTA “Start New Application” – Design §4.2, PRD §5.2
+- [x] **5.6** Ensure dashboard loads in < 3s; list shows status and link to detail/result – PRD §5.2
+- [x] **5.7** New application wizard – progress bar “Step X of 5” – Design §4.3, PRD §5.3
   - **Step 1:** Loan type selection (Working Capital | Term Loan); Back / Continue
   - **Step 2:** Business details form (monthly revenue, business age months, industry, city; optional business name); 2-column where appropriate; inline validation (Zod + React Hook Form) – Design §4.3
   - **Step 3:** Document upload – large upload zone, drag-and-drop, bank statement (required), GST (optional); file type/size validation; upload progress; “Your documents are securely processed” – Design §4.3, PRD §5.3
   - **Step 4:** “Analyzing financials…” full-screen or inline loader; call extract then score; show until ready
   - **Step 5:** Results & offers (see 5.9)
 - [ ] **5.8** (Optional) Step “Review & Submit” before Step 4: summary of loan type, business info, uploaded docs; edit links; Submit button – can merge with Step 3 or 4 depending on flow
-- [ ] **5.9** Results screen – Design §4.5, PRD §5.9
+- [x] **5.9** Results screen – Design §4.5, PRD §5.9
   - Top: Decision status (Pre-approved / Approved / Conditional / Rejected)
   - Cards: Risk score (0–100), Eligible loan range, Interest range, Suggested tenure
   - Decision reason (plain language)
   - Improvement tips
   - **Offers comparison table:** Lender name, Loan type, Amount, Interest rate, Tenure, Badges (Best Rate, Fast Approval, Highest Amount)
-- [ ] **5.10** Risk score visualization: circular or horizontal bar; color range green / amber / red – Design §7
+- [x] **5.10** Risk score visualization: circular or horizontal bar; color range green / amber / red – Design §7
 - [ ] **5.11** Financial summary card (from ExtractedFinancials): avg revenue, highest/lowest, avg balance, negative days, volatility, summary – Design §6
 - [ ] **5.12** Error states: upload failed, extraction failed, timeout – clear message + retry – Design §12, PRD §10
 - [ ] **5.13** Empty states: “No applications yet”, “Upload your first document” with next action – Design §11
-- [ ] **5.14** Responsive: desktop first; tablet and mobile stacked cards, simplified tables – Design §10
+- [x] **5.14** Responsive: desktop first; tablet and mobile stacked cards, simplified tables – Design §10
 
 ---
 
 ## Phase 6: Admin frontend
 
-- [ ] **6.1** Admin layout: sidebar (Dashboard, Merchants, Applications); top bar; collapsible sidebar – Design §8
-- [ ] **6.2** Admin dashboard: top metrics (Total Applications, Approved, Rejected, Pending); applications table with filters (status, date range, loan type, risk score) – Design §5.1, PRD §5.10
-- [ ] **6.3** Merchant list: table (Merchant Name, Business Type, Applications, Avg Risk Score, Status); search bar – Design §5.2, PRD §5.10
-- [ ] **6.4** Application detail view: Merchant info, Financial metrics, Extracted document data, Risk score breakdown, Decision summary; two-column layout – Design §5.3, PRD §5.10
-- [ ] **6.5** Risk breakdown: score, factor breakdown, financial metrics, extraction summary – PRD §5.10
-- [ ] **6.6** Decision status: show Approved/Rejected/Conditional per application (and per lender if needed)
-- [ ] **6.7** Document preview: list or link to view/download uploaded documents – PRD §5.10
-- [ ] **6.8** Restrict all admin routes to `admin` role; redirect merchants away from admin paths
+- [x] **6.1** Admin layout: sidebar (Dashboard, Merchants, Applications); top bar; collapsible sidebar – Design §8
+- [x] **6.2** Admin dashboard: top metrics (Total Applications, Approved, Rejected, Pending); applications table with filters (status, date range, loan type, risk score) – Design §5.1, PRD §5.10
+- [x] **6.3** Merchant list: table (Merchant Name, Business Type, Applications, Avg Risk Score, Status); search bar – Design §5.2, PRD §5.10
+- [x] **6.4** Application detail view: Merchant info, Financial metrics, Extracted document data, Risk score breakdown, Decision summary; two-column layout – Design §5.3, PRD §5.10
+- [x] **6.5** Risk breakdown: score, factor breakdown, financial metrics, extraction summary – PRD §5.10
+- [x] **6.6** Decision status: show Approved/Rejected/Conditional per application (and per lender if needed)
+- [x] **6.7** Document preview: list or link to view/download uploaded documents – PRD §5.10
+- [x] **6.8** Restrict all admin routes to `admin` role; redirect merchants away from admin paths
 
 ---
 
 ## Phase 7: Integration, errors & deploy
 
-- [ ] **7.1** End-to-end flow: signup → login → new application → steps 1–3 → submit → Step 4 (analyze) → Step 5 (results + offers); verify data in DB at each stage
+- [x] **7.1** End-to-end flow: signup → login → new application → steps 1–3 → submit → Step 4 (analyze) → Step 5 (results + offers); verify data in DB at each stage
 - [ ] **7.2** Handle extraction timeout: show “Processing delayed” or retry; preserve application state – PRD §10
 - [ ] **7.3** Handle partial extraction: store what’s available; show message; allow re-upload/retry – PRD §10
 - [ ] **7.4** Audit logging: log admin actions (view merchant, view application) – PRD §8, techstack §17
 - [ ] **7.5** Logging: application submissions, document uploads, extraction, scoring, lender evaluation, offer generation (Winston/Pino) – techstack §16
 - [ ] **7.6** (Optional) Error tracking: Sentry for API and frontend – techstack §16
-- [ ] **7.7** API: ensure all 6 endpoints (upload-documents, extract-financials, calculate-score, evaluate-lenders, offers, decision-explanation) are protected and return consistent JSON – PRD §6
-- [ ] **7.8** Database indexes: merchant_id, application_id, status – techstack §18
-- [ ] **7.9** Deploy backend (e.g. Render/Railway or Docker on cloud); deploy frontend (e.g. Vercel); configure env and secrets – techstack §12
-- [ ] **7.10** Smoke test in staging: full merchant flow + admin view; confirm Definition of Done checklist in PRD §2.3
+- [x] **7.7** API: ensure all 6 endpoints (upload-documents, extract-financials, calculate-score, evaluate-lenders, offers, decision-explanation) are protected and return consistent JSON – PRD §6
+- [x] **7.8** Database indexes: merchant_id, application_id, status – techstack §18
+- [x] **7.9** Deploy backend (e.g. Render/Railway or Docker on cloud); deploy frontend (e.g. Vercel); configure env and secrets – techstack §12
+- [x] **7.10** Smoke test in staging: full merchant flow + admin view; confirm Definition of Done checklist in PRD §2.3
 
 ---
 

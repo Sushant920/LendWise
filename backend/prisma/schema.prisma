@@ -76,6 +76,9 @@ model Application {
   eligibilityScores  EligibilityScore[]
   offers            Offer[]
   decisions         Decision[]
+
+  @@index([merchantId])
+  @@index([status])
 }
 
 model Document {

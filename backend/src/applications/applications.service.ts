@@ -46,6 +46,7 @@ export class ApplicationsService {
       where: { id },
       include: {
         documents: true,
+        eligibilityScores: true,
         merchant: { select: { id: true, email: true, name: true, businessName: true, industry: true, city: true, businessAgeMonths: true, monthlyRevenue: true } },
       },
     });

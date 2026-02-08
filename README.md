@@ -60,6 +60,12 @@ App runs at http://localhost:3000
 - [Tech stack](techstack.md) — architecture and tools
 - [To-do list](to-do-list.md) — development checklist
 
+## Deployment
+
+- **Backend:** Set `DATABASE_URL`, `JWT_SECRET`, `PORT`; run `prisma migrate deploy` and `prisma db seed`. Deploy to Render, Railway, or Docker.
+- **Frontend:** Set `NEXT_PUBLIC_API_URL` to your backend API base (e.g. `https://api.example.com/api`). Deploy to Vercel or static host.
+- **Database:** Use managed PostgreSQL; ensure indexes on `applications(merchant_id)` and `applications(status)` (see Prisma schema).
+
 ## License
 
 Private / Unlicensed
