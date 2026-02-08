@@ -1,0 +1,9 @@
+# Root Dockerfile only copies backend/; keep context small
+frontend
+.git
+.github
+*.md
+.env
+.env.*
+node_modules
+**/node_modules

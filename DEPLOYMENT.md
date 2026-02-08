@@ -27,31 +27,39 @@ Use this section if you are deploying **backend on Render** and **frontend on Ve
 
 ## Part 2: Backend on Render (Web Service)
 
-**If you already deployed and see:** `Error: Cannot find module '/opt/render/project/src/backend/dist/main'`  
-→ Use the **no Root Directory** setup below so the start command runs from inside `backend` and finds `dist/main`.
+**If you see:** `Error: Cannot find module '.../backend/dist/main'`  
+→ Use **Docker** (recommended below); the repo includes `backend/Dockerfile` for that.
+
+**If you see:** `Running build command ' '` / `Application exited early`  
+→ The service is **Node** (Language was not Docker). Set **Language** to **Docker** and do **not** set Root Directory (see below).
+
+**Important – Render quirk:** If you set **Root Directory** to `backend`, Render can change **Language** back to **Node**, which causes the empty-command error. So for Docker: **leave Root Directory empty** and use the repo-root Dockerfile (see below).
 
 1. In Render dashboard, click **New +** → **Web Service**.
 2. **Connect repository:**
-   - If not connected: **Connect account** (GitHub) and select your **LendWise** repo.
-   - Select the repo (e.g. `Sushant920/LendWise`) and click **Connect**.
-3. **Configure the service (use one of these):**
+   - Choose **Build and deploy from a Git repository** → **Next**.
+   - Connect GitHub and select your **LendWise** repo (e.g. `Sushant920/LendWise`).
+3. **Configure the service (Docker – keep Language as Docker):**
 
-   **Recommended (avoids "Cannot find module .../dist/main"):**
-   - **Name:** e.g. `lendwise-api`
-   - **Region:** Same as your database (e.g. Oregon).
+   **Use this so Language stays Docker (do not set Root Directory):**
+   - **Name:** e.g. `lendwise-api` (or `lendwise-api-docker` if the name is taken).
+   - **Region:** Same as your database (e.g. Singapore, Oregon, etc.).
    - **Branch:** `main`
-   - **Root Directory:** leave **blank** (so we use the full repo and `cd backend` in commands).
-   - **Runtime:** `Node`
-   - **Build Command:**  
-     `cd backend && npm install && npx prisma generate && npm run build`
-   - **Start Command:**  
-     `cd backend && npx prisma migrate deploy && node dist/main`
+   - **Root Directory:** leave **empty**. (If you set it to `backend`, Render may switch Language to Node and you’ll get "Running ' '" / "Application exited early".)
+   - **Language:** **Docker** (confirm it stays Docker after you leave Root Directory empty).
+   - **Dockerfile Path:** `Dockerfile` (the repo has a root-level `Dockerfile` that builds the backend so you don’t need Root Directory).
+   - **Build Command / Pre-Deploy / Start Command:** leave all **empty**.
 
-   **Alternative (Root Directory = backend):**  
-   - **Root Directory:** `backend`  
-   - **Build Command:** `npm install && npx prisma generate && npm run build`  
-   - **Start Command:** `npx prisma migrate deploy && node dist/main`  
-   If you get "Cannot find module .../dist/main", switch to the recommended setup above (no Root Directory, use `cd backend` in both commands).
+   **Under Advanced (optional but recommended):**
+   - **Docker Command:**  
+     `/bin/sh -c "npx prisma migrate deploy && node dist/main.js"`
+
+   **Alternative – Node (if Docker isn’t an option):**
+   - **Root Directory:** `backend`
+   - **Runtime:** `Node`
+   - **Build Command:** `npm install && npx prisma generate && npm run build`
+   - **Start Command:** `npx prisma migrate deploy && node dist/main.js`  
+   If you still get "Cannot find module .../dist/main", switch to the **Docker** setup above.
 4. **Environment variables** — click **Add Environment Variable** and add:
 
    | Key             | Value |
