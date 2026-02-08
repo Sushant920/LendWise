@@ -72,6 +72,22 @@ export async function apiUpload(
   return res.json();
 }
 
+/** Download a file from the API (e.g. admin document download). */
+export async function apiDownload(path: string, filename: string): Promise<void> {
+  const token = getToken();
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error('Download failed');
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename || 'download';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function setToken(token: string) {
   if (typeof window !== 'undefined') localStorage.setItem('lendwise_token', token);
 }

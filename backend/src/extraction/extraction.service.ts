@@ -7,6 +7,10 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { DocumentType } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
+import * as path from 'path';
+import * as fs from 'fs';
+
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(process.cwd(), 'uploads');
 
 export interface ExtractedFinancialsResult {
   avgMonthlyRevenue: number;
@@ -44,7 +48,14 @@ export class ExtractionService {
       data: { status: 'processing' },
     });
 
-    const mockResult = this.runMockExtraction(application.merchant?.monthlyRevenue);
+    let result: ExtractedFinancialsResult | null = null;
+    const absolutePath = path.join(UPLOAD_DIR, bankStatement.storagePath);
+    if (fs.existsSync(absolutePath) && bankStatement.mimeType.startsWith('image/')) {
+      result = await this.tryOcrExtraction(absolutePath, application.merchant?.monthlyRevenue);
+    }
+    if (!result) {
+      result = this.runMockExtraction(application.merchant?.monthlyRevenue);
+    }
 
     await this.prisma.extractedFinancials.deleteMany({
       where: { applicationId },
@@ -53,21 +64,65 @@ export class ExtractionService {
       data: {
         documentId: bankStatement.id,
         applicationId,
-        avgMonthlyRevenue: new Decimal(mockResult.avgMonthlyRevenue),
-        highestRevenue: new Decimal(mockResult.highestRevenue),
-        lowestRevenue: new Decimal(mockResult.lowestRevenue),
-        avgBalance: new Decimal(mockResult.avgBalance),
-        revenueConsistency: mockResult.revenueConsistency,
-        cashFlowVolatility: mockResult.cashFlowVolatility,
-        transactionCount: mockResult.transactionCount,
-        negativeBalanceDays: mockResult.negativeBalanceDays,
-        riskSummary: mockResult.riskSummary,
-        inflowOutflowSummary: (mockResult.inflowOutflowSummary ?? undefined) as object | undefined,
-        rawResponse: mockResult as unknown as object,
+        avgMonthlyRevenue: new Decimal(result.avgMonthlyRevenue),
+        highestRevenue: new Decimal(result.highestRevenue),
+        lowestRevenue: new Decimal(result.lowestRevenue),
+        avgBalance: new Decimal(result.avgBalance),
+        revenueConsistency: result.revenueConsistency,
+        cashFlowVolatility: result.cashFlowVolatility,
+        transactionCount: result.transactionCount,
+        negativeBalanceDays: result.negativeBalanceDays,
+        riskSummary: result.riskSummary,
+        inflowOutflowSummary: (result.inflowOutflowSummary ?? undefined) as object | undefined,
+        rawResponse: result as unknown as object,
       },
     });
 
-    return mockResult;
+    return result;
+  }
+
+  private async tryOcrExtraction(
+    filePath: string,
+    declaredRevenue?: Decimal | null,
+  ): Promise<ExtractedFinancialsResult | null> {
+    try {
+      const Tesseract = await import('tesseract.js');
+      const { data } = await Tesseract.recognize(filePath, 'eng', {
+        logger: () => {},
+      });
+      const text = data.text || '';
+      const numbers = text.replace(/,/g, '').match(/\d{4,}/g);
+      if (!numbers || numbers.length < 2) return null;
+      const numValues = numbers.map((n) => parseInt(n, 10)).filter((n) => n > 0);
+      if (numValues.length < 2) return null;
+      const sorted = [...numValues].sort((a, b) => a - b);
+      const avg = Math.round(
+        numValues.reduce((s, n) => s + n, 0) / numValues.length,
+      );
+      const low = sorted[0];
+      const high = sorted[sorted.length - 1];
+      const declared = declaredRevenue ? Number(declaredRevenue) : avg;
+      const consistency =
+        avg > 300000 ? (avg / (high - low || 1) > 5 ? 'High' : 'Medium') : 'Low';
+      const volatility = consistency === 'High' ? 'Low' : consistency === 'Medium' ? 'Medium' : 'High';
+      return {
+        avgMonthlyRevenue: avg,
+        highestRevenue: high,
+        lowestRevenue: low,
+        avgBalance: Math.round(avg * 0.4),
+        revenueConsistency: consistency,
+        cashFlowVolatility: volatility,
+        transactionCount: Math.min(500, numValues.length * 15),
+        negativeBalanceDays: volatility === 'High' ? Math.floor(Math.random() * 3) : 0,
+        riskSummary:
+          declared && avg >= declared * 0.8
+            ? 'Extracted figures align with declared revenue.'
+            : 'Review extracted figures against declared revenue.',
+        inflowOutflowSummary: { avgInflow: avg, avgOutflow: Math.round(avg * 0.85) },
+      };
+    } catch {
+      return null;
+    }
   }
 
   private runMockExtraction(declaredMonthlyRevenue?: Decimal | null): ExtractedFinancialsResult {

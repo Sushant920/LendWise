@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, apiDownload } from '@/lib/api';
 
 type App = {
   id: string;
@@ -18,23 +18,46 @@ export default function AdminApplicationsPage() {
   const [apps, setApps] = useState<App[]>([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [loanTypeFilter, setLoanTypeFilter] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const params = new URLSearchParams();
     if (statusFilter) params.set('status', statusFilter);
     if (loanTypeFilter) params.set('loanType', loanTypeFilter);
+    if (dateFrom) params.set('dateFrom', dateFrom);
+    if (dateTo) params.set('dateTo', dateTo);
     const q = params.toString() ? `?${params.toString()}` : '';
     api<App[]>(`/admin/applications${q}`)
       .then(setApps)
       .catch(() => setApps([]))
       .finally(() => setLoading(false));
-  }, [statusFilter, loanTypeFilter]);
+  }, [statusFilter, loanTypeFilter, dateFrom, dateTo]);
+
+  function handleExport() {
+    const params = new URLSearchParams();
+    if (statusFilter) params.set('status', statusFilter);
+    if (loanTypeFilter) params.set('loanType', loanTypeFilter);
+    if (dateFrom) params.set('dateFrom', dateFrom);
+    if (dateTo) params.set('dateTo', dateTo);
+    const q = params.toString() ? `?${params.toString()}` : '';
+    apiDownload(`/admin/applications/export${q}`, `applications-${new Date().toISOString().slice(0, 10)}.csv`).catch(() => {});
+  }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800">Applications</h1>
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold text-slate-800">Applications</h1>
+        <button
+          type="button"
+          onClick={handleExport}
+          className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Export CSV
+        </button>
+      </div>
+      <div className="flex flex-wrap items-center gap-4">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -59,6 +82,24 @@ export default function AdminApplicationsPage() {
           <option value="working_capital">Working Capital</option>
           <option value="term_loan">Term Loan</option>
         </select>
+        <label className="flex items-center gap-2 text-sm text-slate-600">
+          From
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="flex items-center gap-2 text-sm text-slate-600">
+          To
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
       </div>
       {loading && <p className="text-slate-500">Loading…</p>}
       {!loading && (

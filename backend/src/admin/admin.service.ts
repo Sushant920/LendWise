@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ApplicationStatus, LoanType } from '@prisma/client';
+import * as path from 'path';
+
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(process.cwd(), 'uploads');
 
 @Injectable()
 export class AdminService {
@@ -36,10 +39,23 @@ export class AdminService {
     }));
   }
 
-  async getApplications(filters?: { status?: string; loanType?: string }) {
-    const where: { status?: ApplicationStatus; loanType?: LoanType } = {};
+  async getApplications(filters?: { status?: string; loanType?: string; dateFrom?: string; dateTo?: string }) {
+    const where: {
+      status?: ApplicationStatus;
+      loanType?: LoanType;
+      createdAt?: { gte?: Date; lte?: Date };
+    } = {};
     if (filters?.status) where.status = filters.status as ApplicationStatus;
     if (filters?.loanType) where.loanType = filters.loanType as LoanType;
+    if (filters?.dateFrom || filters?.dateTo) {
+      where.createdAt = {};
+      if (filters.dateFrom) where.createdAt.gte = new Date(filters.dateFrom);
+      if (filters.dateTo) {
+        const d = new Date(filters.dateTo);
+        d.setHours(23, 59, 59, 999);
+        where.createdAt.lte = d;
+      }
+    }
     const applications = await this.prisma.application.findMany({
       where,
       include: {
@@ -61,6 +77,51 @@ export class AdminService {
       documentCount: a.documents.length,
       decisions: a.decisions.map((d: { outcome: string; lender: { name: string } }) => ({ outcome: d.outcome, lenderName: d.lender.name })),
     }));
+  }
+
+  async getDocumentDownload(id: string): Promise<{ absolutePath: string; fileName: string; mimeType: string }> {
+    const doc = await this.prisma.document.findUnique({ where: { id } });
+    if (!doc) throw new NotFoundException('Document not found');
+    const absolutePath = path.join(UPLOAD_DIR, doc.storagePath);
+    return { absolutePath, fileName: doc.fileName, mimeType: doc.mimeType };
+  }
+
+  async getApplicationsCsv(filters?: {
+    status?: string;
+    loanType?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }): Promise<string> {
+    const list = await this.getApplications(filters);
+    const headers = [
+      'id',
+      'loanType',
+      'status',
+      'requestedAmount',
+      'createdAt',
+      'merchantName',
+      'merchantEmail',
+      'score',
+      'band',
+      'documentCount',
+    ];
+    const escape = (v: unknown) =>
+      typeof v === 'string' && (v.includes(',') || v.includes('"') || v.includes('\n'))
+        ? `"${v.replace(/"/g, '""')}"`
+        : String(v ?? '');
+    const rows = list.map((a) => [
+      a.id,
+      a.loanType,
+      a.status,
+      a.requestedAmount ?? '',
+      a.createdAt,
+      (a.merchant as { name?: string })?.name ?? '',
+      (a.merchant as { email?: string })?.email ?? '',
+      (a.score as { score?: number })?.score ?? '',
+      (a.score as { band?: string })?.band ?? '',
+      a.documentCount,
+    ]);
+    return [headers.join(','), ...rows.map((r) => r.map(escape).join(','))].join('\n');
   }
 
   async getApplicationDetail(id: string) {

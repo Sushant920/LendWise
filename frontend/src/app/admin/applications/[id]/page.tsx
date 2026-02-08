@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, apiDownload } from '@/lib/api';
 
 export default function AdminApplicationDetailPage() {
   const params = useParams();
@@ -26,6 +26,12 @@ export default function AdminApplicationDetailPage() {
   const score = data.eligibilityScores as { score: number; band: string; reasoning: string } | undefined;
   const documents = (data.documents as { id: string; type: string; fileName: string }[]) ?? [];
   const decisions = (data.decisions as { outcome: string; reason: string; lender: { name: string } }[]) ?? [];
+  const financials = (data.extractedFinancials as Array<{
+    avgMonthlyRevenue?: number; highestRevenue?: number; lowestRevenue?: number; avgBalance?: number;
+    revenueConsistency?: string; cashFlowVolatility?: string; transactionCount?: number;
+    negativeBalanceDays?: number | null; riskSummary?: string | null;
+  }>) ?? [];
+  const financialSummary = financials[0];
 
   return (
     <div className="space-y-6">
@@ -52,12 +58,39 @@ export default function AdminApplicationDetailPage() {
           ) : <p className="text-slate-500">Not calculated</p>}
         </div>
       </div>
+      {financialSummary && (
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="font-semibold text-slate-800 mb-3">Financial summary</h2>
+          <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+            {financialSummary.avgMonthlyRevenue != null && <div><span className="text-slate-500">Avg monthly revenue</span><p className="font-medium">₹{(financialSummary.avgMonthlyRevenue / 1_00_000).toFixed(1)}L</p></div>}
+            {financialSummary.highestRevenue != null && <div><span className="text-slate-500">Highest revenue</span><p className="font-medium">₹{(financialSummary.highestRevenue / 1_00_000).toFixed(1)}L</p></div>}
+            {financialSummary.lowestRevenue != null && <div><span className="text-slate-500">Lowest revenue</span><p className="font-medium">₹{(financialSummary.lowestRevenue / 1_00_000).toFixed(1)}L</p></div>}
+            {financialSummary.avgBalance != null && <div><span className="text-slate-500">Avg balance</span><p className="font-medium">₹{(financialSummary.avgBalance / 1_00_000).toFixed(1)}L</p></div>}
+            {financialSummary.revenueConsistency && <div><span className="text-slate-500">Revenue consistency</span><p className="font-medium">{financialSummary.revenueConsistency}</p></div>}
+            {financialSummary.cashFlowVolatility && <div><span className="text-slate-500">Cash flow volatility</span><p className="font-medium">{financialSummary.cashFlowVolatility}</p></div>}
+            {financialSummary.transactionCount != null && <div><span className="text-slate-500">Transactions</span><p className="font-medium">{financialSummary.transactionCount}</p></div>}
+            {financialSummary.negativeBalanceDays != null && <div><span className="text-slate-500">Negative balance days</span><p className="font-medium">{financialSummary.negativeBalanceDays}</p></div>}
+          </div>
+          {financialSummary.riskSummary && <p className="mt-3 text-slate-600">{financialSummary.riskSummary}</p>}
+        </div>
+      )}
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="font-semibold text-slate-800 mb-3">Documents</h2>
-        {documents.length === 0 ? <p className="text-slate-500">None</p> : (
-          <ul className="list-disc list-inside text-sm text-slate-600">
+        {documents.length === 0 ? (
+          <p className="text-slate-500">No documents uploaded</p>
+        ) : (
+          <ul className="space-y-2 text-sm">
             {documents.map((d) => (
-              <li key={d.id}>{d.type}: {d.fileName}</li>
+              <li key={d.id} className="flex items-center justify-between gap-2">
+                <span className="text-slate-700">{d.type.replace('_', ' ')}: {d.fileName}</span>
+                <button
+                  type="button"
+                  onClick={() => apiDownload(`/admin/documents/${d.id}/download`, d.fileName).catch(() => {})}
+                  className="rounded bg-[var(--primary-light)] px-2 py-1 text-xs font-medium text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
+                >
+                  Download
+                </button>
+              </li>
             ))}
           </ul>
         )}

@@ -35,10 +35,20 @@ export default function ApplicationsPage() {
       </div>
       {loading && <p className="text-slate-500">Loading…</p>}
       {!loading && apps.length === 0 && (
-        <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-500">
-          No applications yet.{' '}
-          <Link href="/applications/new" className="font-medium text-[var(--primary)] hover:underline">
-            Start one
+        <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-12 text-center">
+          <div className="rounded-full bg-[var(--primary-light)] p-4">
+            <svg className="h-10 w-10 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" strokeLinecap="round" />
+              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" strokeLinecap="round" />
+            </svg>
+          </div>
+          <p className="mt-4 font-semibold text-slate-800">No applications yet</p>
+          <p className="mt-1 text-sm text-slate-600">Start your first loan application to see offers and track status here.</p>
+          <Link
+            href="/applications/new"
+            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 font-medium text-white hover:bg-[var(--primary-hover)]"
+          >
+            Start New Application
           </Link>
         </div>
       )}

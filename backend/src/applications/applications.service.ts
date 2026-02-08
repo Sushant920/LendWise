@@ -131,7 +131,17 @@ export class ApplicationsService {
   private serializeApplication(a: {
     requestedAmount?: Decimal | null;
     merchant?: { monthlyRevenue?: Decimal | null; [k: string]: unknown };
-    extractedFinancials?: { avgMonthlyRevenue?: Decimal }[];
+    extractedFinancials?: Array<{
+      avgMonthlyRevenue?: Decimal;
+      highestRevenue?: Decimal;
+      lowestRevenue?: Decimal;
+      avgBalance?: Decimal;
+      revenueConsistency?: string;
+      cashFlowVolatility?: string;
+      transactionCount?: number;
+      negativeBalanceDays?: number | null;
+      riskSummary?: string | null;
+    }>;
     [key: string]: unknown;
   }): Record<string, unknown> {
     const out: Record<string, unknown> = { ...a };
@@ -143,9 +153,21 @@ export class ApplicationsService {
       );
       out.merchant = m;
     }
-    const financials = a.extractedFinancials as { avgMonthlyRevenue?: Decimal }[] | undefined;
-    if (financials?.[0]?.avgMonthlyRevenue != null) {
-      out.avgMonthlyRevenue = Number(financials[0].avgMonthlyRevenue);
+    const financials = a.extractedFinancials;
+    if (financials?.[0]) {
+      const f = financials[0];
+      out.avgMonthlyRevenue = f.avgMonthlyRevenue != null ? Number(f.avgMonthlyRevenue) : undefined;
+      out.extractedFinancials = {
+        avgMonthlyRevenue: f.avgMonthlyRevenue != null ? Number(f.avgMonthlyRevenue) : undefined,
+        highestRevenue: f.highestRevenue != null ? Number(f.highestRevenue) : undefined,
+        lowestRevenue: f.lowestRevenue != null ? Number(f.lowestRevenue) : undefined,
+        avgBalance: f.avgBalance != null ? Number(f.avgBalance) : undefined,
+        revenueConsistency: f.revenueConsistency,
+        cashFlowVolatility: f.cashFlowVolatility,
+        transactionCount: f.transactionCount,
+        negativeBalanceDays: f.negativeBalanceDays ?? undefined,
+        riskSummary: f.riskSummary ?? undefined,
+      };
     }
     return out;
   }

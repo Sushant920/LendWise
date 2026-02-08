@@ -23,12 +23,25 @@ type Explanation = {
   perLender: { lenderName: string; outcome: string; reason: string }[];
 };
 
+type FinancialSummary = {
+  avgMonthlyRevenue?: number;
+  highestRevenue?: number;
+  lowestRevenue?: number;
+  avgBalance?: number;
+  revenueConsistency?: string;
+  cashFlowVolatility?: string;
+  transactionCount?: number;
+  negativeBalanceDays?: number;
+  riskSummary?: string;
+};
+
 export default function ResultPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
   const [score, setScore] = useState<Score | null>(null);
   const [avgMonthlyRevenue, setAvgMonthlyRevenue] = useState<number | undefined>(undefined);
+  const [financialSummary, setFinancialSummary] = useState<FinancialSummary | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [explanation, setExplanation] = useState<Explanation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +53,7 @@ export default function ResultPage() {
       api<{
           eligibilityScores?: { score: number; band: string; reasoning: string }[];
           avgMonthlyRevenue?: number;
+          extractedFinancials?: FinancialSummary;
         }>(`/applications/${id}`)
         .then((app) => ({
           score: app.eligibilityScores?.[0]
@@ -50,15 +64,17 @@ export default function ResultPage() {
               }
             : null,
           avgMonthlyRevenue: app.avgMonthlyRevenue,
+          financialSummary: app.extractedFinancials ?? null,
         }))
         .catch(() => null),
       api<Offer[]>(`/offers?applicationId=${id}`).catch(() => []),
       api<Explanation>(`/decision-explanation?applicationId=${id}`).catch(() => null),
     ])
       .then(([res, o, e]) => {
-        const resObj = res as { score: Score | null; avgMonthlyRevenue?: number } | null;
+        const resObj = res as { score: Score | null; avgMonthlyRevenue?: number; financialSummary?: FinancialSummary } | null;
         setScore(resObj?.score ?? null);
         setAvgMonthlyRevenue(resObj?.avgMonthlyRevenue);
+        setFinancialSummary(resObj?.financialSummary ?? null);
         setOffers(Array.isArray(o) ? o : []);
         setExplanation(e);
       })
@@ -137,6 +153,40 @@ export default function ResultPage() {
               <p className="text-sm text-slate-500">Suggested tenure</p>
               <p className="text-lg font-semibold text-slate-800">12–36 months</p>
             </div>
+          </div>
+        )}
+        {financialSummary && (
+          <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50/50 p-4">
+            <h3 className="font-semibold text-slate-800">Financial summary</h3>
+            <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+              {financialSummary.avgMonthlyRevenue != null && (
+                <div><span className="text-slate-500">Avg monthly revenue</span><p className="font-medium text-slate-800">₹{(financialSummary.avgMonthlyRevenue / 1_00_000).toFixed(1)}L</p></div>
+              )}
+              {financialSummary.highestRevenue != null && (
+                <div><span className="text-slate-500">Highest revenue</span><p className="font-medium text-slate-800">₹{(financialSummary.highestRevenue / 1_00_000).toFixed(1)}L</p></div>
+              )}
+              {financialSummary.lowestRevenue != null && (
+                <div><span className="text-slate-500">Lowest revenue</span><p className="font-medium text-slate-800">₹{(financialSummary.lowestRevenue / 1_00_000).toFixed(1)}L</p></div>
+              )}
+              {financialSummary.avgBalance != null && (
+                <div><span className="text-slate-500">Avg balance</span><p className="font-medium text-slate-800">₹{(financialSummary.avgBalance / 1_00_000).toFixed(1)}L</p></div>
+              )}
+              {financialSummary.revenueConsistency && (
+                <div><span className="text-slate-500">Revenue consistency</span><p className="font-medium text-slate-800">{financialSummary.revenueConsistency}</p></div>
+              )}
+              {financialSummary.cashFlowVolatility && (
+                <div><span className="text-slate-500">Cash flow volatility</span><p className="font-medium text-slate-800">{financialSummary.cashFlowVolatility}</p></div>
+              )}
+              {financialSummary.transactionCount != null && (
+                <div><span className="text-slate-500">Transactions</span><p className="font-medium text-slate-800">{financialSummary.transactionCount}</p></div>
+              )}
+              {financialSummary.negativeBalanceDays != null && (
+                <div><span className="text-slate-500">Negative balance days</span><p className="font-medium text-slate-800">{financialSummary.negativeBalanceDays}</p></div>
+              )}
+            </div>
+            {financialSummary.riskSummary && (
+              <p className="mt-3 text-slate-600">{financialSummary.riskSummary}</p>
+            )}
           </div>
         )}
         {score && (

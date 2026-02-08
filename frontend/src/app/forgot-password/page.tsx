@@ -1,14 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api, setToken } from '@/lib/api';
+import { api } from '@/lib/api';
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -17,18 +15,38 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const res = await api<{ accessToken: string; merchant: { role: string } }>('/auth/login', {
+      await api<{ message: string }>('/auth/forgot-password', {
         method: 'POST',
-        body: { email, password },
+        body: { email },
       });
-      setToken(res.accessToken);
-      if ((res as { merchant?: { role?: string } }).merchant?.role === 'admin') router.push('/admin');
-      else router.push('/dashboard');
+      setSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : 'Request failed');
     } finally {
       setLoading(false);
     }
+  }
+
+  if (sent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white p-4">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm text-center">
+          <h1 className="text-2xl font-bold text-[var(--primary)]">Check your email</h1>
+          <p className="mt-4 text-slate-600">
+            If an account exists for <strong>{email}</strong>, we sent a password reset link. It expires in 1 hour.
+          </p>
+          <p className="mt-2 text-sm text-slate-500">
+            Didn’t receive it? Check spam or{' '}
+            <button type="button" onClick={() => setSent(false)} className="text-[var(--primary)] hover:underline">
+              try again
+            </button>
+          </p>
+          <Link href="/login" className="mt-6 inline-block text-sm font-medium text-[var(--primary)] hover:underline">
+            ← Back to Sign in
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -36,7 +54,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-[var(--primary)]">LendWise</h1>
-          <p className="text-slate-500 mt-1">Sign in to your account</p>
+          <p className="text-slate-500 mt-1">Reset your password</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
@@ -53,24 +71,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-              Password
-            </label>
-            <Link href="/forgot-password" className="text-xs text-[var(--primary)] hover:underline">
-              Forgot password?
-            </Link>
-          </div>
-          <div>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-800 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+              placeholder="you@example.com"
             />
           </div>
           <button
@@ -78,13 +79,12 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded-lg bg-[var(--primary)] px-4 py-2.5 font-medium text-white hover:bg-[var(--primary-hover)] disabled:opacity-50"
           >
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? 'Sending…' : 'Send reset link'}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-slate-500">
-          Don&apos;t have an account?{' '}
-          <Link href="/signup" className="font-medium text-[var(--primary)] hover:underline">
-            Create account
+          <Link href="/login" className="font-medium text-[var(--primary)] hover:underline">
+            ← Back to Sign in
           </Link>
         </p>
       </div>

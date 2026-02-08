@@ -8,8 +8,8 @@ import { api, apiUpload } from '@/lib/api';
 const STEPS = [
   { key: 'loan', title: 'Loan Type', subtitle: 'Select your loan product' },
   { key: 'business', title: 'Business Details', subtitle: 'Tell us about your business' },
-  { key: 'analysis', title: 'AI Analysis', subtitle: 'Upload bank statements' },
-  { key: 'offers', title: 'Offers', subtitle: 'Review lender decisions' },
+  { key: 'documents', title: 'Documents', subtitle: 'Upload bank statements' },
+  { key: 'review', title: 'Review & Submit', subtitle: 'Confirm and submit' },
 ];
 
 const LOAN_OPTIONS = [
@@ -47,7 +47,7 @@ export default function NewApplicationPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const currentStepKey = step <= 3 ? STEPS[step - 1].key : 'offers';
+  const currentStepKey = step <= 4 ? STEPS[step - 1].key : 'review';
 
   async function startApplication() {
     setError('');
@@ -94,7 +94,7 @@ export default function NewApplicationPage() {
     }
   }
 
-  async function uploadAndSubmit() {
+  async function uploadDocumentsOnly() {
     if (!applicationId || !bankFile) {
       setError('Bank statement is required');
       return;
@@ -114,13 +114,40 @@ export default function NewApplicationPage() {
         formGst.append('file', gstFile);
         await apiUpload('/documents/upload', formGst);
       }
+      setStep(4);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Something went wrong';
+      setError(
+        message.includes('reach the server')
+          ? 'Could not reach the server. Check your connection and try again.'
+          : message.includes('Upload') || message.includes('upload')
+            ? 'Upload failed. Check file type (PDF or image) and size (max 10MB), then try again.'
+            : message,
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function submitAndAnalyze() {
+    if (!applicationId) return;
+    setError('');
+    setLoading(true);
+    try {
       await api(`/applications/${applicationId}/submit`, { method: 'POST' });
       await api('/extract-financials', { method: 'POST', body: { applicationId } });
       await api('/calculate-score', { method: 'POST', body: { applicationId } });
       await api('/evaluate-lenders', { method: 'POST', body: { applicationId } });
       router.push(`/applications/${applicationId}/result`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed');
+      const message = err instanceof Error ? err.message : 'Something went wrong';
+      setError(
+        message.includes('reach the server')
+          ? 'Could not reach the server. Check your connection and try again.'
+          : message.includes('extract') || message.includes('Extraction')
+            ? 'Analysis failed. You can try again.'
+            : message,
+      );
       setLoading(false);
     }
   }
@@ -338,8 +365,8 @@ export default function NewApplicationPage() {
 
         {step === 3 && (
           <>
-            <h2 className="text-xl font-semibold text-slate-800">AI Analysis</h2>
-            <p className="mt-1 text-sm text-slate-500">Upload bank statements for automated analysis</p>
+            <h2 className="text-xl font-semibold text-slate-800">Documents</h2>
+            <p className="mt-1 text-sm text-slate-500">Upload bank statement (required) and optional GST return. Your documents are securely processed.</p>
             <div className="mt-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700">
@@ -362,7 +389,18 @@ export default function NewApplicationPage() {
                 />
               </div>
             </div>
-            {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+            {error && (
+              <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                <p>{error}</p>
+                <button
+                  type="button"
+                  onClick={() => { setError(''); setLoading(false); }}
+                  className="mt-3 font-medium text-red-800 hover:underline"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
             <div className="mt-8 flex gap-3">
               <button
                 type="button"
@@ -373,11 +411,64 @@ export default function NewApplicationPage() {
               </button>
               <button
                 type="button"
-                onClick={uploadAndSubmit}
+                onClick={uploadDocumentsOnly}
                 disabled={loading || !bankFile}
                 className="ml-auto inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 font-medium text-white hover:bg-[var(--primary-hover)] disabled:opacity-50"
               >
-                {loading ? 'Uploading and analyzing...' : 'Submit and view offers'}
+                {loading ? 'Uploading...' : 'Next'} →
+              </button>
+            </div>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
+            <h2 className="text-xl font-semibold text-slate-800">Review & Submit</h2>
+            <p className="mt-1 text-sm text-slate-500">Confirm your details and submit for analysis</p>
+            <div className="mt-6 space-y-4 rounded-lg border border-slate-200 bg-slate-50/50 p-4">
+              <div>
+                <p className="text-xs font-medium text-slate-500">Loan type</p>
+                <p className="font-medium text-slate-800">{loanType === 'working_capital' ? 'Working Capital' : 'Term Loan'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-slate-500">Business</p>
+                <p className="font-medium text-slate-800">{business.businessName || '—'}</p>
+                <p className="text-sm text-slate-600">{business.industry}{business.city ? ` · ${business.city}` : ''}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-slate-500">Documents</p>
+                <p className="text-sm text-slate-800">Bank statement: {bankFile?.name ?? '—'}</p>
+                {gstFile && <p className="text-sm text-slate-800">GST return: {gstFile.name}</p>}
+              </div>
+            </div>
+            <p className="mt-4 text-sm text-slate-500">
+              <button type="button" onClick={() => setStep(3)} className="text-[var(--primary)] hover:underline">Edit documents</button>
+              {' · '}
+              <button type="button" onClick={() => setStep(2)} className="text-[var(--primary)] hover:underline">Edit business details</button>
+              {' · '}
+              <button type="button" onClick={() => setStep(1)} className="text-[var(--primary)] hover:underline">Edit loan type</button>
+            </p>
+            {error && (
+              <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                <p>{error}</p>
+                <button type="button" onClick={() => { setError(''); setLoading(false); }} className="mt-3 font-medium text-red-800 hover:underline">Try again</button>
+              </div>
+            )}
+            <div className="mt-8 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setStep(3)}
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-slate-700 hover:bg-slate-50"
+              >
+                ← Back
+              </button>
+              <button
+                type="button"
+                onClick={submitAndAnalyze}
+                disabled={loading}
+                className="ml-auto inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 font-medium text-white hover:bg-[var(--primary-hover)] disabled:opacity-50"
+              >
+                {loading ? 'Submitting and analyzing...' : 'Submit and view offers'}
               </button>
             </div>
           </>

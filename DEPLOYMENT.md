@@ -64,8 +64,10 @@ Use this section if you are deploying **backend on Render** and **frontend on Ve
    | `DATABASE_URL`  | Paste the Postgres URL from Part 1 (Internal or External). |
    | `JWT_SECRET`    | A long random string. Generate one: run `openssl rand -base64 32` in a terminal and paste the output. |
    | `FRONTEND_URL`  | Leave blank for now. You’ll set it after deploying the frontend (e.g. `https://lendwise-xxx.vercel.app`). |
+   | `RESEND_API_KEY` (optional) | For forgot-password emails. Without it, reset links are logged in backend logs (dev only). Get a key at [resend.com](https://resend.com). |
 
-   - **Do not** set `PORT` — Render sets it automatically.
+   - **Do not** set `PORT` — Render sets it automatically.  
+   - After deploying, run the new migration if you added password reset: from your machine, `cd backend` and `DATABASE_URL="<your-db-url>" npx prisma migrate deploy`.
 5. Click **Create Web Service**. Render will build and deploy.
 6. Wait until the deploy shows **Live** (green). If it fails, check **Logs** (often missing `DATABASE_URL` or Prisma errors).
 7. Copy your backend URL from the top of the page, e.g. `https://lendwise-api.onrender.com`.  
