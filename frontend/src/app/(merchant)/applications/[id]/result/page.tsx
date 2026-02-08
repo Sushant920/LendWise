@@ -28,6 +28,7 @@ export default function ResultPage() {
   const router = useRouter();
   const id = params.id as string;
   const [score, setScore] = useState<Score | null>(null);
+  const [avgMonthlyRevenue, setAvgMonthlyRevenue] = useState<number | undefined>(undefined);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [explanation, setExplanation] = useState<Explanation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,17 +37,28 @@ export default function ResultPage() {
   useEffect(() => {
     if (!id) return;
     Promise.all([
-      api<{ eligibilityScores?: { score: number; band: string; reasoning: string }[] }>(`/applications/${id}`)
-        .then((app) => {
-          const esc = app.eligibilityScores?.[0];
-          return esc ? { score: esc.score, band: esc.band, reasoning: esc.reasoning } : null;
-        })
+      api<{
+          eligibilityScores?: { score: number; band: string; reasoning: string }[];
+          avgMonthlyRevenue?: number;
+        }>(`/applications/${id}`)
+        .then((app) => ({
+          score: app.eligibilityScores?.[0]
+            ? {
+                score: app.eligibilityScores[0].score,
+                band: app.eligibilityScores[0].band,
+                reasoning: app.eligibilityScores[0].reasoning,
+              }
+            : null,
+          avgMonthlyRevenue: app.avgMonthlyRevenue,
+        }))
         .catch(() => null),
       api<Offer[]>(`/offers?applicationId=${id}`).catch(() => []),
       api<Explanation>(`/decision-explanation?applicationId=${id}`).catch(() => null),
     ])
-      .then(([s, o, e]) => {
-        setScore(s ?? null);
+      .then(([res, o, e]) => {
+        const resObj = res as { score: Score | null; avgMonthlyRevenue?: number } | null;
+        setScore(resObj?.score ?? null);
+        setAvgMonthlyRevenue(resObj?.avgMonthlyRevenue);
         setOffers(Array.isArray(o) ? o : []);
         setExplanation(e);
       })
@@ -80,15 +92,15 @@ export default function ResultPage() {
         : 'Rejected';
   const bandColor =
     score?.band === 'pre_approved' || score?.band === 'approved'
-      ? 'bg-green-100 text-green-800'
+      ? 'bg-[var(--primary-light)] text-[var(--primary)]'
       : score?.band === 'rejected'
         ? 'bg-red-100 text-red-800'
-        : 'bg-amber-100 text-amber-800';
+        : 'bg-[var(--primary-light)] text-slate-700';
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Link href="/applications" className="text-sm text-teal-600 hover:text-teal-700">
+        <Link href="/applications" className="text-sm text-[var(--primary)] hover:underline">
           ← Back to Applications
         </Link>
       </div>
@@ -100,11 +112,19 @@ export default function ResultPage() {
           {bandLabel}
         </div>
         {score && (
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div className="rounded-lg border border-slate-200 p-4">
-              <p className="text-sm text-slate-500">Credit score</p>
+              <p className="text-sm text-slate-500">Eligibility Score</p>
               <p className="text-2xl font-bold text-slate-800">{score.score}/100</p>
             </div>
+            {avgMonthlyRevenue != null && (
+              <div className="rounded-lg border border-slate-200 p-4">
+                <p className="text-sm text-slate-500">Average monthly revenue</p>
+                <p className="text-lg font-semibold text-slate-800">
+                  ₹{avgMonthlyRevenue >= 1_00_000 ? `${(avgMonthlyRevenue / 1_00_000).toFixed(1)}L` : avgMonthlyRevenue.toLocaleString('en-IN')}
+                </p>
+              </div>
+            )}
             <div className="rounded-lg border border-slate-200 p-4">
               <p className="text-sm text-slate-500">Eligible loan range</p>
               <p className="text-lg font-semibold text-slate-800">₹2L – ₹5Cr</p>
@@ -153,7 +173,9 @@ export default function ResultPage() {
                 </tr>
               </thead>
               <tbody>
-                {offers.map((o) => (
+                {[...offers]
+                .sort((a, b) => (a.lenderName === 'Credable' ? -1 : b.lenderName === 'Credable' ? 1 : 0))
+                .map((o) => (
                   <tr key={o.id} className="border-b border-slate-100">
                     <td className="px-4 py-3 font-medium text-slate-800">{o.lenderName}</td>
                     <td className="px-4 py-3 text-slate-700">
@@ -168,7 +190,7 @@ export default function ResultPage() {
                         {o.badges.map((b) => (
                           <span
                             key={b}
-                            className="rounded bg-teal-100 px-2 py-0.5 text-xs text-teal-800"
+                            className="rounded bg-[var(--primary-light)] px-2 py-0.5 text-xs text-[var(--primary)]"
                           >
                             {b}
                           </span>

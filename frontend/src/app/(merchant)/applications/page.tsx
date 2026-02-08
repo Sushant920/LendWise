@@ -28,7 +28,7 @@ export default function ApplicationsPage() {
         <h1 className="text-2xl font-bold text-slate-800">Applications</h1>
         <Link
           href="/applications/new"
-          className="rounded-lg bg-teal-600 px-4 py-2.5 font-medium text-white hover:bg-teal-700"
+          className="rounded-lg bg-[var(--primary)] px-4 py-2.5 font-medium text-white hover:bg-[var(--primary-hover)]"
         >
           Start New Application
         </Link>
@@ -37,7 +37,7 @@ export default function ApplicationsPage() {
       {!loading && apps.length === 0 && (
         <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-500">
           No applications yet.{' '}
-          <Link href="/applications/new" className="font-medium text-teal-600">
+          <Link href="/applications/new" className="font-medium text-[var(--primary)] hover:underline">
             Start one
           </Link>
         </div>
@@ -76,7 +76,7 @@ export default function ApplicationsPage() {
                           ? `/applications/${a.id}/result`
                           : `/applications/${a.id}`
                       }
-                      className="text-teal-600 hover:text-teal-700 font-medium text-sm"
+                      className="text-[var(--primary)] hover:underline font-medium text-sm"
                     >
                       View
                     </Link>

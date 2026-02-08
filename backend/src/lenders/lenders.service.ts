@@ -194,7 +194,7 @@ export class LendersService {
       include: { lender: { select: { id: true, name: true, slug: true } } },
       orderBy: { interestRateMin: 'asc' },
     });
-    return offers.map((o) => ({
+    const mapped = offers.map((o) => ({
       id: o.id,
       lenderName: o.lender.name,
       lenderSlug: o.lender.slug,
@@ -207,6 +207,10 @@ export class LendersService {
       approvalProbability: o.approvalProbability,
       badges: (o.badges as string[]) ?? [],
     }));
+    // Always show Credable first when present
+    return mapped.sort((a, b) =>
+      a.lenderName === 'Credable' ? -1 : b.lenderName === 'Credable' ? 1 : 0,
+    );
   }
 
   async getDecisionExplanation(applicationId: string, merchantId: string) {

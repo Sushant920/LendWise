@@ -89,7 +89,7 @@ export default function AdminApplicationsPage() {
                   <td className="px-4 py-3 text-slate-600">{a.documentCount}</td>
                   <td className="px-4 py-3 text-slate-600">{new Date(a.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
-                    <Link href={`/admin/applications/${a.id}`} className="text-sm text-teal-600 hover:text-teal-700">View</Link>
+                    <Link href={`/admin/applications/${a.id}`} className="text-sm text-[var(--primary)] hover:underline">View</Link>
                   </td>
                 </tr>
               ))}

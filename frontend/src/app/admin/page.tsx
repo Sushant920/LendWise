@@ -32,7 +32,7 @@ export default function AdminDashboardPage() {
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-sm text-slate-500">Approved</p>
-          <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+          <p className="text-2xl font-bold text-[var(--primary)]">{stats.approved}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-sm text-slate-500">Rejected</p>
@@ -40,13 +40,13 @@ export default function AdminDashboardPage() {
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-sm text-slate-500">Pending</p>
-          <p className="text-2xl font-bold text-amber-600">{stats.pending}</p>
+          <p className="text-2xl font-bold text-[var(--primary)]">{stats.pending}</p>
         </div>
       </div>
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-4 py-3 flex justify-between items-center">
           <h2 className="font-semibold text-slate-800">Applications</h2>
-          <Link href="/admin/applications" className="text-sm text-teal-600 hover:text-teal-700">View all</Link>
+          <Link href="/admin/applications" className="text-sm text-[var(--primary)] hover:underline">View all</Link>
         </div>
         <p className="p-6 text-slate-500 text-sm">Use the Applications link to view and filter all applications.</p>
       </div>

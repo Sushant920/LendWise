@@ -1,9 +1,40 @@
-import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { PrismaClient, Role } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+const ADMIN_EMAIL = 'admin@lendwise.com';
+const ADMIN_PASSWORD = 'Admin@123'; // Change in production
+
 async function main() {
+  // Admin user for /admin dashboard (role: admin)
+  const adminHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+  await prisma.merchant.upsert({
+    where: { email: ADMIN_EMAIL },
+    create: {
+      email: ADMIN_EMAIL,
+      passwordHash: adminHash,
+      name: 'LendWise Admin',
+      role: Role.admin,
+    },
+    update: { passwordHash: adminHash, role: Role.admin },
+  });
+  console.log('Seeded admin user:', ADMIN_EMAIL);
+
   const lenders = [
+    {
+      name: 'Credable',
+      slug: 'credable',
+      minMonthlyRevenue: 50000,
+      minBusinessVintageMonths: 3,
+      minEligibilityScore: 50,
+      loanMinAmount: 100000,
+      loanMaxAmount: 10000000,
+      interestRateMin: 12,
+      interestRateMax: 20,
+      allowedIndustries: null,
+      isActive: true,
+    },
     {
       name: 'QuickCapital',
       slug: 'quick-capital',
@@ -69,7 +100,7 @@ async function main() {
       update: {},
     });
   }
-  console.log('Seeded 4 lenders');
+  console.log('Seeded 5 lenders (Credable first)');
 }
 
 main()

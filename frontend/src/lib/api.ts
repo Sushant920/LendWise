@@ -1,5 +1,9 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
+/** Message shown when fetch fails (e.g. backend not running). */
+export const API_CONNECTION_ERROR =
+  'Could not reach the server. Make sure the backend is running (e.g. cd backend && npm run start:dev).';
+
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('lendwise_token');
@@ -15,11 +19,22 @@ export async function api<T>(path: string, options: ApiOptions = {}): Promise<T>
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const body = options.body !== undefined ? JSON.stringify(options.body) : undefined;
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-    body,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers,
+      body,
+    });
+  } catch (e) {
+    throw new Error(
+      e instanceof TypeError && e.message === 'Failed to fetch'
+        ? API_CONNECTION_ERROR
+        : e instanceof Error
+          ? e.message
+          : 'Request failed',
+    );
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }));
     throw new Error((err as { message?: string }).message || 'Request failed');
@@ -34,11 +49,22 @@ export async function apiUpload(
   const token = getToken();
   const headers: HeadersInit = {};
   if (token) headers['Authorization'] = `Bearer ${token}`;
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers,
-    body: formData,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+  } catch (e) {
+    throw new Error(
+      e instanceof TypeError && e.message === 'Failed to fetch'
+        ? API_CONNECTION_ERROR
+        : e instanceof Error
+          ? e.message
+          : 'Upload failed',
+    );
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }));
     throw new Error((err as { message?: string }).message || 'Upload failed');

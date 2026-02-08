@@ -29,7 +29,7 @@ export default function AdminApplicationDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Link href="/admin/applications" className="text-sm text-teal-600 hover:text-teal-700">← Back to Applications</Link>
+      <Link href="/admin/applications" className="text-sm text-[var(--primary)] hover:underline">← Back to Applications</Link>
       <h1 className="text-2xl font-bold text-slate-800">Application {id.slice(0, 8)}…</h1>
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">

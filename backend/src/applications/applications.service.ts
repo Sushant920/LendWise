@@ -47,6 +47,7 @@ export class ApplicationsService {
       include: {
         documents: true,
         eligibilityScores: true,
+        extractedFinancials: { orderBy: { createdAt: 'desc' }, take: 1 },
         merchant: { select: { id: true, email: true, name: true, businessName: true, industry: true, city: true, businessAgeMonths: true, monthlyRevenue: true } },
       },
     });
@@ -130,6 +131,7 @@ export class ApplicationsService {
   private serializeApplication(a: {
     requestedAmount?: Decimal | null;
     merchant?: { monthlyRevenue?: Decimal | null; [k: string]: unknown };
+    extractedFinancials?: { avgMonthlyRevenue?: Decimal }[];
     [key: string]: unknown;
   }): Record<string, unknown> {
     const out: Record<string, unknown> = { ...a };
@@ -140,6 +142,10 @@ export class ApplicationsService {
         (a.merchant as { monthlyRevenue: Decimal }).monthlyRevenue,
       );
       out.merchant = m;
+    }
+    const financials = a.extractedFinancials as { avgMonthlyRevenue?: Decimal }[] | undefined;
+    if (financials?.[0]?.avgMonthlyRevenue != null) {
+      out.avgMonthlyRevenue = Number(financials[0].avgMonthlyRevenue);
     }
     return out;
   }

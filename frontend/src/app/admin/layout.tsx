@@ -18,16 +18,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-white flex">
       <aside className="w-56 border-r border-slate-200 bg-white">
-        <div className="p-4 font-bold text-slate-800">LendWise Admin</div>
+        <div className="p-4 font-bold text-[var(--primary)]">LendWise Admin</div>
         <nav className="p-2 space-y-1">
-          <Link href="/admin" className={`block rounded-lg px-3 py-2 text-sm ${pathname === '/admin' ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-100'}`}>Dashboard</Link>
-          <Link href="/admin/merchants" className={`block rounded-lg px-3 py-2 text-sm ${pathname === '/admin/merchants' ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-100'}`}>Merchants</Link>
-          <Link href="/admin/applications" className={`block rounded-lg px-3 py-2 text-sm ${pathname === '/admin/applications' ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-100'}`}>Applications</Link>
+          <Link href="/admin" className={`block rounded-lg px-3 py-2 text-sm ${pathname === '/admin' ? 'bg-[var(--primary-light)] text-[var(--primary)]' : 'text-slate-600 hover:bg-slate-100 hover:text-[var(--primary)]'}`}>Dashboard</Link>
+          <Link href="/admin/merchants" className={`block rounded-lg px-3 py-2 text-sm ${pathname === '/admin/merchants' ? 'bg-[var(--primary-light)] text-[var(--primary)]' : 'text-slate-600 hover:bg-slate-100 hover:text-[var(--primary)]'}`}>Merchants</Link>
+          <Link href="/admin/applications" className={`block rounded-lg px-3 py-2 text-sm ${pathname === '/admin/applications' ? 'bg-[var(--primary-light)] text-[var(--primary)]' : 'text-slate-600 hover:bg-slate-100 hover:text-[var(--primary)]'}`}>Applications</Link>
         </nav>
         <div className="p-4">
-          <button type="button" onClick={() => { clearToken(); router.push('/login'); }} className="text-sm text-slate-600 hover:text-slate-800">Logout</button>
+          <button type="button" onClick={() => { clearToken(); router.push('/login'); }} className="text-sm text-slate-600 hover:text-[var(--primary)]">Logout</button>
         </div>
       </aside>
       <main className="flex-1 p-6 overflow-auto">{children}</main>
