@@ -1,0 +1,167 @@
+// LendWise LOS - PRD §7
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  merchant
+  admin
+}
+
+enum LoanType {
+  working_capital
+  term_loan
+}
+
+enum ApplicationStatus {
+  draft
+  submitted
+  processing
+  decision_generated
+  pre_approved
+  approved
+  conditional
+  rejected
+}
+
+enum DocumentType {
+  bank_statement
+  gst_return
+}
+
+enum EligibilityBand {
+  pre_approved
+  conditional
+  rejected
+}
+
+enum DecisionOutcome {
+  approved
+  conditional
+  rejected
+}
+
+model Merchant {
+  id                   String   @id @default(cuid())
+  email                String   @unique
+  passwordHash         String   @map("password_hash")
+  name                 String
+  role                 Role     @default(merchant)
+  businessName         String?  @map("business_name")
+  industry             String?
+  city                 String?
+  businessAgeMonths    Int?     @map("business_age_months")
+  monthlyRevenue       Decimal? @map("monthly_revenue") @db.Decimal(18, 2)
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+  applications         Application[]
+}
+
+model Application {
+  id                String            @id @default(cuid())
+  merchantId        String            @map("merchant_id")
+  loanType          LoanType          @map("loan_type")
+  status            ApplicationStatus  @default(draft)
+  requestedAmount   Decimal?          @map("requested_amount") @db.Decimal(18, 2)
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  merchant          Merchant         @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  documents         Document[]
+  extractedFinancials ExtractedFinancials[]
+  eligibilityScores  EligibilityScore[]
+  offers            Offer[]
+  decisions         Decision[]
+}
+
+model Document {
+  id             String       @id @default(cuid())
+  applicationId  String       @map("application_id")
+  type           DocumentType
+  storagePath   String       @map("storage_path")
+  fileName      String       @map("file_name")
+  mimeType      String       @map("mime_type")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  extractedFinancials ExtractedFinancials[]
+}
+
+model ExtractedFinancials {
+  id                    String   @id @default(cuid())
+  documentId            String   @map("document_id")
+  applicationId         String   @map("application_id")
+  avgMonthlyRevenue     Decimal  @map("avg_monthly_revenue") @db.Decimal(18, 2)
+  highestRevenue        Decimal  @map("highest_revenue") @db.Decimal(18, 2)
+  lowestRevenue         Decimal  @map("lowest_revenue") @db.Decimal(18, 2)
+  avgBalance            Decimal  @map("avg_balance") @db.Decimal(18, 2)
+  inflowOutflowSummary  Json?    @map("inflow_outflow_summary")
+  revenueConsistency    String   @map("revenue_consistency") // Low | Medium | High
+  cashFlowVolatility   String   @map("cash_flow_volatility")
+  transactionCount      Int      @map("transaction_count")
+  negativeBalanceDays   Int?     @map("negative_balance_days")
+  riskSummary          String?  @map("risk_summary")
+  rawResponse          Json?    @map("raw_response")
+  createdAt            DateTime @default(now()) @map("created_at")
+  document             Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  application          Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+model EligibilityScore {
+  id              String          @id @default(cuid())
+  applicationId   String          @unique @map("application_id")
+  score           Int             // 0-100
+  band           EligibilityBand
+  reasoning       String
+  factorBreakdown Json?          @map("factor_breakdown")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  application     Application    @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+model Lender {
+  id                      String    @id @default(cuid())
+  name                    String
+  slug                    String    @unique
+  minMonthlyRevenue       Decimal   @map("min_monthly_revenue") @db.Decimal(18, 2)
+  minBusinessVintageMonths Int     @map("min_business_vintage_months")
+  minEligibilityScore    Int       @map("min_eligibility_score")
+  loanMinAmount          Decimal   @map("loan_min_amount") @db.Decimal(18, 2)
+  loanMaxAmount          Decimal   @map("loan_max_amount") @db.Decimal(18, 2)
+  interestRateMin        Decimal   @map("interest_rate_min") @db.Decimal(5, 2)
+  interestRateMax        Decimal   @map("interest_rate_max") @db.Decimal(5, 2)
+  allowedIndustries      Json?     @map("allowed_industries") // string[]
+  isActive               Boolean   @default(true) @map("is_active")
+  offers                 Offer[]
+  decisions              Decision[]
+}
+
+model Offer {
+  id                  String    @id @default(cuid())
+  applicationId       String    @map("application_id")
+  lenderId            String    @map("lender_id")
+  approvedAmount      Decimal   @map("approved_amount") @db.Decimal(18, 2)
+  interestRateMin     Decimal   @map("interest_rate_min") @db.Decimal(5, 2)
+  interestRateMax     Decimal   @map("interest_rate_max") @db.Decimal(5, 2)
+  tenureMonths        Int       @map("tenure_months")
+  emiMin              Decimal?  @map("emi_min") @db.Decimal(18, 2)
+  emiMax              Decimal?  @map("emi_max") @db.Decimal(18, 2)
+  approvalProbability String?   @map("approval_probability")
+  badges              Json?     // string[]
+  createdAt           DateTime  @default(now()) @map("created_at")
+  application         Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  lender              Lender     @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+}
+
+model Decision {
+  id             String         @id @default(cuid())
+  applicationId  String         @map("application_id")
+  lenderId       String         @map("lender_id")
+  outcome        DecisionOutcome
+  reason         String
+  createdAt      DateTime      @default(now()) @map("created_at")
+  application    Application   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  lender         Lender        @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+}

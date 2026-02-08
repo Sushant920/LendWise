@@ -22,21 +22,21 @@ Use this list in order; check off items as you complete them. Each section maps 
 
 ## Phase 1: Database & authentication
 
-- [ ] **1.1** Install Prisma (or TypeORM); init and connect to PostgreSQL (techstack §5)
-- [ ] **1.2** Create Prisma schema: **Merchants** (id, email, password_hash, name, business_name?, industry, city, business_age_months, monthly_revenue, created_at, updated_at) – PRD §7.1
-- [ ] **1.3** Add **Applications** (id, merchant_id, loan_type enum, status enum, requested_amount?, created_at, updated_at) – PRD §7.2
-- [ ] **1.4** Add **Documents** (id, application_id, type enum, storage_path, file_name, mime_type, created_at) – PRD §7.3
-- [ ] **1.5** Add **ExtractedFinancials** (id, document_id, application_id, avg_monthly_revenue, highest_revenue, lowest_revenue, avg_balance, inflow_outflow_summary?, revenue_consistency, cash_flow_volatility, transaction_count, negative_balance_days?, risk_summary?, raw_response?, created_at) – PRD §7.4
-- [ ] **1.6** Add **EligibilityScores** (id, application_id, score, band enum, reasoning, factor_breakdown?, created_at) – PRD §7.5
-- [ ] **1.7** Add **Lenders** (id, name, slug, min_monthly_revenue, min_business_vintage_months, min_eligibility_score, loan_min_amount, loan_max_amount, interest_rate_min, interest_rate_max, allowed_industries?, is_active) – PRD §7.6
-- [ ] **1.8** Add **Offers** (id, application_id, lender_id, approved_amount, interest_rate_min/max, tenure_months, emi_min/max?, approval_probability?, badges?, created_at) – PRD §7.8
-- [ ] **1.9** Add **Decisions** (id, application_id, lender_id, outcome enum, reason, created_at) – PRD §7.9
-- [ ] **1.10** Add `role` to Merchants (e.g. `merchant` | `admin`) or separate Admin table per your RBAC design – PRD §5.1
-- [ ] **1.11** Run migrations; seed at least 4 **Lenders** with different rules (revenue, vintage, score, loan range, industry) – PRD §5.6
-- [ ] **1.12** Implement auth: signup (email + password, hash with bcrypt), login (JWT issue), logout (token invalidation or client discard) – PRD §5.1, techstack §7
-- [ ] **1.13** Implement password reset flow (token + email or placeholder) – PRD §5.1
-- [ ] **1.14** Add RBAC middleware: protect routes by role (`merchant` vs `admin`); return 403 when role mismatch – PRD §5.1
-- [ ] **1.15** Expose auth API: `POST /auth/signup`, `POST /auth/login`, `POST /auth/logout`, `POST /auth/forgot-password` (and reset)
+- [x] **1.1** Install Prisma (or TypeORM); init and connect to PostgreSQL (techstack §5)
+- [x] **1.2** Create Prisma schema: **Merchants** (id, email, password_hash, name, business_name?, industry, city, business_age_months, monthly_revenue, created_at, updated_at) – PRD §7.1
+- [x] **1.3** Add **Applications** (id, merchant_id, loan_type enum, status enum, requested_amount?, created_at, updated_at) – PRD §7.2
+- [x] **1.4** Add **Documents** (id, application_id, type enum, storage_path, file_name, mime_type, created_at) – PRD §7.3
+- [x] **1.5** Add **ExtractedFinancials** (id, document_id, application_id, avg_monthly_revenue, highest_revenue, lowest_revenue, avg_balance, inflow_outflow_summary?, revenue_consistency, cash_flow_volatility, transaction_count, negative_balance_days?, risk_summary?, raw_response?, created_at) – PRD §7.4
+- [x] **1.6** Add **EligibilityScores** (id, application_id, score, band enum, reasoning, factor_breakdown?, created_at) – PRD §7.5
+- [x] **1.7** Add **Lenders** (id, name, slug, min_monthly_revenue, min_business_vintage_months, min_eligibility_score, loan_min_amount, loan_max_amount, interest_rate_min, interest_rate_max, allowed_industries?, is_active) – PRD §7.6
+- [x] **1.8** Add **Offers** (id, application_id, lender_id, approved_amount, interest_rate_min/max, tenure_months, emi_min/max?, approval_probability?, badges?, created_at) – PRD §7.8
+- [x] **1.9** Add **Decisions** (id, application_id, lender_id, outcome enum, reason, created_at) – PRD §7.9
+- [x] **1.10** Add `role` to Merchants (e.g. `merchant` | `admin`) or separate Admin table per your RBAC design – PRD §5.1
+- [x] **1.11** Run migrations; seed at least 4 **Lenders** with different rules (revenue, vintage, score, loan range, industry) – PRD §5.6
+- [x] **1.12** Implement auth: signup (email + password, hash with bcrypt), login (JWT issue), logout (token invalidation or client discard) – PRD §5.1, techstack §7
+- [x] **1.13** Implement password reset flow (token + email or placeholder) – PRD §5.1
+- [x] **1.14** Add RBAC middleware: protect routes by role (`merchant` vs `admin`); return 403 when role mismatch – PRD §5.1
+- [x] **1.15** Expose auth API: `POST /auth/signup`, `POST /auth/login`, `POST /auth/logout`, `POST /auth/forgot-password` (and reset)
 
 ---
 
