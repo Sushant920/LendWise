@@ -24,6 +24,7 @@ export class AdminService {
         id: true,
         name: true,
         email: true,
+        phone: true,
         industry: true,
         city: true,
         businessAgeMonths: true,
@@ -37,6 +38,27 @@ export class AdminService {
       monthlyRevenue: monthlyRevenue ? Number(monthlyRevenue) : null,
       applicationCount: _count.applications,
     }));
+  }
+
+  async getMerchantsCsv(search?: string): Promise<string> {
+    const list = await this.getMerchants(search);
+    const headers = ['id', 'name', 'email', 'phone', 'industry', 'city', 'businessAgeMonths', 'monthlyRevenue', 'applicationCount'];
+    const escape = (v: unknown) =>
+      typeof v === 'string' && (v.includes(',') || v.includes('"') || v.includes('\n'))
+        ? `"${v.replace(/"/g, '""')}"`
+        : String(v ?? '');
+    const rows = list.map((m) => [
+      m.id,
+      m.name,
+      m.email,
+      m.phone ?? '',
+      m.industry ?? '',
+      m.city ?? '',
+      m.businessAgeMonths ?? '',
+      m.monthlyRevenue ?? '',
+      m.applicationCount,
+    ]);
+    return [headers.join(','), ...rows.map((r) => r.map(escape).join(','))].join('\n');
   }
 
   async getApplications(filters?: { status?: string; loanType?: string; dateFrom?: string; dateTo?: string }) {

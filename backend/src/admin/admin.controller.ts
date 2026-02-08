@@ -18,6 +18,16 @@ export class AdminController {
     return this.adminService.getMerchants(search);
   }
 
+  @Get('merchants/export')
+  async exportMerchants(@Query('search') search?: string): Promise<StreamableFile> {
+    const csv = await this.adminService.getMerchantsCsv(search);
+    const stream = Readable.from([csv]);
+    return new StreamableFile(stream, {
+      type: 'text/csv',
+      disposition: 'attachment; filename="merchants.csv"',
+    });
+  }
+
   @Get('applications')
   getApplications(
     @Query('status') status?: string,
