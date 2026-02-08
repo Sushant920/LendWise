@@ -89,9 +89,10 @@ export class ApplicationsService {
       });
     }
 
-    const appData: { loanType?: LoanType; requestedAmount?: Decimal } = {};
+    const appData: { loanType?: LoanType; requestedAmount?: Decimal; foundersCibilScore?: number } = {};
     if (dto.loanType !== undefined) appData.loanType = dto.loanType;
     if (dto.requestedAmount !== undefined) appData.requestedAmount = new Decimal(dto.requestedAmount);
+    if (dto.foundersCibilScore !== undefined) appData.foundersCibilScore = dto.foundersCibilScore;
 
     const updated = await this.prisma.application.update({
       where: { id },

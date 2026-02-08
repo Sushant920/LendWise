@@ -17,11 +17,12 @@ export default function NewApplicationPage() {
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [loanType, setLoanType] = useState('working_capital');
   const [business, setBusiness] = useState({
-    monthlyRevenue: '',
-    businessAgeMonths: '',
+    businessName: '',
     industry: '',
     city: '',
-    businessName: '',
+    businessAgeMonths: '',
+    requestedAmount: '',
+    foundersCibilScore: '',
   });
   const [bankFile, setBankFile] = useState<File | null>(null);
   const [gstFile, setGstFile] = useState<File | null>(null);
@@ -54,11 +55,12 @@ export default function NewApplicationPage() {
         method: 'PATCH',
         body: {
           loanType,
-          monthlyRevenue: Number(business.monthlyRevenue),
-          businessAgeMonths: Number(business.businessAgeMonths),
+          businessName: business.businessName.trim(),
           industry: business.industry,
           city: business.city,
-          businessName: business.businessName || undefined,
+          businessAgeMonths: Number(business.businessAgeMonths),
+          requestedAmount: Number(business.requestedAmount),
+          foundersCibilScore: Number(business.foundersCibilScore),
         },
       });
       setStep(3);
@@ -135,8 +137,8 @@ export default function NewApplicationPage() {
             <h2 className="text-lg font-semibold text-slate-800">Business details</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-slate-700">Business name (optional)</label>
-                <input type="text" value={business.businessName} onChange={(e) => setBusiness((b) => ({ ...b, businessName: e.target.value }))} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <label className="block text-sm font-medium text-slate-700">Business name</label>
+                <input type="text" value={business.businessName} onChange={(e) => setBusiness((b) => ({ ...b, businessName: e.target.value }))} required className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Legal name of your business" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700">Industry</label>
@@ -147,18 +149,22 @@ export default function NewApplicationPage() {
                 <input type="text" value={business.city} onChange={(e) => setBusiness((b) => ({ ...b, city: e.target.value }))} required className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700">Monthly revenue (INR)</label>
-                <input type="number" min={0} value={business.monthlyRevenue} onChange={(e) => setBusiness((b) => ({ ...b, monthlyRevenue: e.target.value }))} required className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
-              </div>
-              <div>
                 <label className="block text-sm font-medium text-slate-700">Business age (months)</label>
                 <input type="number" min={0} value={business.businessAgeMonths} onChange={(e) => setBusiness((b) => ({ ...b, businessAgeMonths: e.target.value }))} required className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700">Founders CIBIL score</label>
+                <input type="number" min={300} max={900} value={business.foundersCibilScore} onChange={(e) => setBusiness((b) => ({ ...b, foundersCibilScore: e.target.value }))} required className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="300–900" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700">How much credit do you want? (INR)</label>
+                <input type="number" min={0} value={business.requestedAmount} onChange={(e) => setBusiness((b) => ({ ...b, requestedAmount: e.target.value }))} required className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Requested loan amount" />
               </div>
             </div>
             {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
             <div className="mt-6 flex gap-3">
               <button type="button" onClick={() => setStep(1)} className="rounded-lg border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50">Back</button>
-              <button type="button" onClick={saveBusiness} disabled={loading || !business.industry || !business.city || !business.monthlyRevenue || !business.businessAgeMonths} className="flex-1 rounded-lg bg-teal-600 py-2.5 font-medium text-white hover:bg-teal-700 disabled:opacity-50">
+              <button type="button" onClick={saveBusiness} disabled={loading || !business.businessName.trim() || !business.industry || !business.city || !business.businessAgeMonths || !business.requestedAmount || !business.foundersCibilScore} className="flex-1 rounded-lg bg-teal-600 py-2.5 font-medium text-white hover:bg-teal-700 disabled:opacity-50">
                 {loading ? 'Saving...' : 'Continue'}
               </button>
             </div>

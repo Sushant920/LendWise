@@ -63,13 +63,14 @@ model Merchant {
 }
 
 model Application {
-  id                String            @id @default(cuid())
-  merchantId        String            @map("merchant_id")
-  loanType          LoanType          @map("loan_type")
-  status            ApplicationStatus  @default(draft)
-  requestedAmount   Decimal?          @map("requested_amount") @db.Decimal(18, 2)
-  createdAt         DateTime         @default(now()) @map("created_at")
-  updatedAt         DateTime         @updatedAt @map("updated_at")
+  id                  String            @id @default(cuid())
+  merchantId          String            @map("merchant_id")
+  loanType            LoanType          @map("loan_type")
+  status              ApplicationStatus  @default(draft)
+  requestedAmount     Decimal?          @map("requested_amount") @db.Decimal(18, 2)
+  foundersCibilScore  Int?              @map("founders_cibil_score")
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
   merchant          Merchant         @relation(fields: [merchantId], references: [id], onDelete: Cascade)
   documents         Document[]
   extractedFinancials ExtractedFinancials[]
