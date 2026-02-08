@@ -49,10 +49,7 @@ Use this section if you are deploying **backend on Render** and **frontend on Ve
    - **Language:** **Docker** (confirm it stays Docker after you leave Root Directory empty).
    - **Dockerfile Path:** `Dockerfile` (the repo has a root-level `Dockerfile` that builds the backend so you don’t need Root Directory).
    - **Build Command / Pre-Deploy / Start Command:** leave all **empty**.
-
-   **Under Advanced (optional but recommended):**
-   - **Docker Command:**  
-     `/bin/sh -c "npx prisma migrate deploy && node dist/main.js"`
+   - **Docker Command (Advanced):** leave **empty**. The Dockerfile already has the correct `CMD` to run migrations and start the app. If you set a custom Docker Command and see `/bin/sh: ... not found` (exit 127), clear it and redeploy.
 
    **Alternative – Node (if Docker isn’t an option):**
    - **Root Directory:** `backend`

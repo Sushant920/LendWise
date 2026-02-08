@@ -5,19 +5,11 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-# Copy backend package files and prisma
-COPY backend/package*.json ./
-COPY backend/prisma ./prisma/
-
-# Install dependencies
-RUN npm ci
-
-# Generate Prisma client
-RUN npx prisma generate
-
-# Copy backend source and build
+# Copy entire backend (root .dockerignore excludes frontend, etc.; backend/.dockerignore is not used for context)
 COPY backend/ .
-RUN npm run build
+
+# Install deps, generate Prisma client, build (dist must exist after this)
+RUN npm ci && npx prisma generate && npm run build && test -f dist/main.js || (echo "Build did not produce dist/main.js" && ls -la dist/ 2>/dev/null || true && exit 1)
 
 ENV NODE_ENV=production
 EXPOSE 3001
