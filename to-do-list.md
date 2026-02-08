@@ -69,16 +69,16 @@ Use this list in order; check off items as you complete them. Each section maps 
 
 ## Phase 4: Multi-lender engine, offers & explainability
 
-- [ ] **4.1** Lender rule engine: for a given application (with score + financials + business details), evaluate each active **Lender** – PRD §5.6
+- [x] **4.1** Lender rule engine: for a given application (with score + financials + business details), evaluate each active **Lender** – PRD §5.6
   - Compare: min_monthly_revenue, min_business_vintage_months, min_eligibility_score, allowed_industries
   - Output per lender: Approved | Conditional | Rejected + reason
-- [ ] **4.2** Persist per-lender result in **Decisions** (application_id, lender_id, outcome, reason)
-- [ ] **4.3** Implement `POST /evaluate-lenders` (input: application_id); run engine; return list of decisions – PRD §6
-- [ ] **4.4** Offer generator: for each Approved/Conditional lender, create **Offers** row (approved_amount, interest range, tenure, EMI, badges) – PRD §5.7
-- [ ] **4.5** Assign badges (e.g. “Best Rate”, “Fast Approval”, “Highest Amount”) from offer attributes; rank offers (e.g. by rate, then amount)
-- [ ] **4.6** Implement `GET /offers?applicationId=` – return ranked offers with badges – PRD §6
-- [ ] **4.7** Explainability: aggregate global reasoning (from EligibilityScores) + per-lender reasons (from Decisions) + improvement tips (from score engine or static copy)
-- [ ] **4.8** Implement `GET /decision-explanation?applicationId=` – return full explanation (global + per-lender + tips) – PRD §5.8, §6
+- [x] **4.2** Persist per-lender result in **Decisions** (application_id, lender_id, outcome, reason)
+- [x] **4.3** Implement `POST /evaluate-lenders` (input: application_id); run engine; return list of decisions – PRD §6
+- [x] **4.4** Offer generator: for each Approved/Conditional lender, create **Offers** row (approved_amount, interest range, tenure, EMI, badges) – PRD §5.7
+- [x] **4.5** Assign badges (e.g. “Best Rate”, “Fast Approval”, “Highest Amount”) from offer attributes; rank offers (e.g. by rate, then amount)
+- [x] **4.6** Implement `GET /offers?applicationId=` – return ranked offers with badges – PRD §6
+- [x] **4.7** Explainability: aggregate global reasoning (from EligibilityScores) + per-lender reasons (from Decisions) + improvement tips (from score engine or static copy)
+- [x] **4.8** Implement `GET /decision-explanation?applicationId=` – return full explanation (global + per-lender + tips) – PRD §5.8, §6
 
 ---
 
